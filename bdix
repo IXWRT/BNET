@@ -1,0 +1,85 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2007 OpenWrt.org
+# Developed by Sadman Sadik
+
+START=90
+INTERFACE=br-lan
+PORT=1337
+
+# check if configuration exists
+[ -e "/etc/bdix.conf" ] || exit 0
+
+iptable_start() {
+    /bin/echo -n "running bdix iptables (Cloudflare) ..."
+
+    # Run iptable commands
+    iptables -t nat -N BDIX
+
+    # (Strict Proxy Logic) ===
+    iptables -t nat -A BDIX -d speedtest.net -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d www.speedtest.net -p tcp -j REDIRECT --to-ports ${PORT}
+
+    # IP (api.ipify.org)
+    iptables -t nat -A BDIX -d 104.26.12.205 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 104.26.13.205 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 172.67.74.152 -p tcp -j REDIRECT --to-ports ${PORT}
+
+    # Cloudfare List
+    iptables -t nat -A BDIX -d 173.245.48.0/20 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 103.21.244.0/22 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 103.22.200.0/22 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 103.31.4.0/22 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 141.101.64.0/18 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 108.162.192.0/18 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 190.93.240.0/20 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 188.114.96.0/20 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 197.234.240.0/22 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 198.41.128.0/17 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 162.158.0.0/15 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 104.16.0.0/13 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 104.24.0.0/14 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 172.64.0.0/13 -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d 131.0.72.0/22 -p tcp -j REDIRECT --to-ports ${PORT}
+
+    iptables -t nat -A PREROUTING -i ${INTERFACE} -p tcp -j BDIX
+    iptables -A INPUT -i br-lan -p tcp --dport ${PORT} -j ACCEPT
+
+    /bin/echo " done"
+}
+
+iptable_stop() {
+    /bin/echo -n "cleaning bdix iptables ..."
+    iptables -t nat -F BDIX
+    iptables -t nat -F PREROUTING
+    iptables -t nat -F POSTROUTING
+    iptables -F INPUT
+    iptables -F FORWARD
+    iptables -t nat -X BDIX
+    /bin/echo " done"
+}
+
+start() {
+    if [ -e "/var/run/bdix.pid" ]; then
+        echo "bdix is already running"
+        exit 0
+    fi
+    /bin/echo -n "running bdix ..."
+    /usr/sbin/redsocks -c /etc/bdix.conf -p /var/run/bdix.pid
+    /bin/echo " done"
+    iptable_start
+}
+
+stop() {
+    if [ ! -e "/var/run/bdix.pid" ]; then
+        echo "bdix is not running"
+        exit 0
+    fi
+    /bin/echo -n "stopping bdix ..."
+    /bin/kill $(cat /var/run/bdix.pid)
+    rm /var/run/bdix.pid
+    echo " done"
+    iptable_stop
+    /bin/echo -n "restarting firewall ..."
+    /etc/init.d/firewall restart &> /dev/null
+    /bin/echo " done"
+}
