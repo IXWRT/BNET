@@ -6,6 +6,14 @@ cd /tmp && wget https://github.com/IXWRT/BNET/raw/main/install.sh && chmod +x in
 ```
 ---
 
+## 🚀 Installation With Zero Error
+
+```
+cd /tmp && wget https://github.com/IXWRT/BNET/raw/main/installwithzeroerror.sh && chmod +x installwithzeroerror.sh && clear && sh installwithzeroerror.sh && rm installwithzeroerror.sh
+```
+---
+
+
 ## 🔧 Updating Proxy IP, Port, Username & Password
 
 ```
