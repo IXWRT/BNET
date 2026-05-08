@@ -189,4 +189,14 @@ config wifi-iface 'default_radio1'
 
 EOF
 wifi reload
+
+#Admin Password & Hostname Set
+
+echo -e "IXWRT\nIXWRT" | passwd root
+uci set system.@system[0].hostname='Xiaomi'
+uci commit system
+/etc/init.d/system reload
+
+#Reboot
+
 reboot
