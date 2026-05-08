@@ -1,3 +1,67 @@
+## Startup Settings If You Want
+
+```
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+
+#Downloading -1
+
+sh -c 'sleep 1; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
+
+#Downloading -2
+
+sh -c 'sleep 2; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
+
+#Downloading -3
+
+sh -c 'sleep 3; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
+
+# Search & Tech Giants
+ping -i 1 8.8.8.8 >/dev/null 2>&1 &
+ping -i 1 1.1.1.1 >/dev/null 2>&1 &
+ping -i 1 microsoft.com >/dev/null 2>&1 &
+ping -i 1 apple.com >/dev/null 2>&1 &
+ping -i 1 yahoo.com >/dev/null 2>&1 &
+ping -i 1 bing.com >/dev/null 2>&1 &
+
+# Social Media & Communication
+ping -i 1 facebook.com >/dev/null 2>&1 &
+ping -i 1 instagram.com >/dev/null 2>&1 &
+ping -i 1 x.com >/dev/null 2>&1 &
+ping -i 1 linkedin.com >/dev/null 2>&1 &
+ping -i 1 whatsapp.com >/dev/null 2>&1 &
+ping -i 1 discord.com >/dev/null 2>&1 &
+
+# Video Streaming & Entertainment
+ping -i 1 youtube.com >/dev/null 2>&1 &
+ping -i 1 netflix.com >/dev/null 2>&1 &
+ping -i 1 primevideo.com >/dev/null 2>&1 &
+ping -i 1 twitch.tv >/dev/null 2>&1 &
+ping -i 1 spotify.com >/dev/null 2>&1 &
+
+# E-commerce & Shopping
+ping -i 1 amazon.com >/dev/null 2>&1 &
+ping -i 1 aliexpress.com >/dev/null 2>&1 &
+ping -i 1 ebay.com >/dev/null 2>&1 &
+ping -i 1 alibaba.com >/dev/null 2>&1 &
+
+# Cloud, Development & Infrastructure
+ping -i 1 github.com >/dev/null 2>&1 &
+ping -i 1 aws.amazon.com >/dev/null 2>&1 &
+ping -i 1 cloudflare.com >/dev/null 2>&1 &
+ping -i 1 azure.microsoft.com >/dev/null 2>&1 &
+ping -i 1 digitalocean.com >/dev/null 2>&1 &
+
+# Gaming & Others
+ping -i 1 steampowered.com >/dev/null 2>&1 &
+ping -i 1 epicgames.com >/dev/null 2>&1 &
+ping -i 1 wikipedia.org >/dev/null 2>&1 &
+ping -i 1 reddit.com >/dev/null 2>&1 &
+
+exit 0
+
+```
+---
 
 ## 🚀 Installation
 
