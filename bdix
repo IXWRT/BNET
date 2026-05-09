@@ -18,6 +18,7 @@ iptable_start() {
     # (Strict Proxy Logic) ===
     iptables -t nat -A BDIX -d speedtest.net -p tcp -j REDIRECT --to-ports ${PORT}
     iptables -t nat -A BDIX -d apkpure.com -p tcp -j REDIRECT --to-ports ${PORT}
+    iptables -t nat -A BDIX -d downsub.com -p tcp -j REDIRECT --to-ports ${PORT}
 
     # IP (api.ipify.org)
     iptables -t nat -A BDIX -d 104.26.12.205 -p tcp -j REDIRECT --to-ports ${PORT}
