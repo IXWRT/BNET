@@ -478,15 +478,10 @@ service bdix disable
 
 #Admin Password & Hostname Set - 6
 ```
-#echo -e "IXWRT\nIXWRT" | passwd root
-uci commit system
-/etc/init.d/system reload
 uci set system.@system[0].hostname='Xiaomi'
 (echo -e "IXWRT\nIXWRT" | passwd root) || (echo "root:IXWRT" | chpasswd)
-
-#Reboot
-
-reboot
+uci commit system
+/etc/init.d/system reload
 
 ```
 
