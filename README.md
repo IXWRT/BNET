@@ -6,8 +6,53 @@
 wget -O /tmp/aurora.ipk 'https://github.com/eamonxg/luci-theme-aurora/releases/download/v0.11.0/luci-theme-aurora_0.11.0-r20260208_all.ipk' && opkg install /tmp/aurora.ipk && rm /tmp/aurora.ipk
 
 ```
+#Default Wireguard
+
+```
+# ১. Wireguard ইন্টারফেস সেটআপ
+uci set network.Wireguard=interface
+uci set network.Wireguard.proto='wireguard'
+uci set network.Wireguard.private_key='aNA/MbdZvGp7hghIkOW5tz50gTzRJbWaC/XzwY6aDmg='
+uci add_list network.Wireguard.addresses='10.0.20.10/32'
+uci add_list network.Wireguard.dns='8.8.8.8'
+uci add_list network.Wireguard.dns='1.1.1.1'
+uci set network.Wireguard.force_link='1'
+
+# ২. Wireguard (Peer) সেটআপ (সব ট্রাফিক ভিপিএন-এ যাওয়ার জন্য)
+uci set network.WireguardPeer=wireguard_Wireguard
+uci set network.WireguardPeer.public_key='EuyNyUe8zbSm8dh2oPnBuoox2Ugqa2OshOpCllCzGR0='
+uci set network.WireguardPeer.endpoint_host='182.160.101.172'
+uci set network.WireguardPeer.endpoint_port='13231'
+uci set network.WireguardPeer.persistent_keepalive='1'
+uci set network.WireguardPeer.route_allowed_ips='1' 
+uci add_list network.WireguardPeer.allowed_ips='0.0.0.0/0'
+uci set network.WireguardPeer.description='Wireguard'
+
+# ৩. ফায়ারওয়াল জোন সেটআপ
+uci set firewall.Wireguard=zone
+uci set firewall.Wireguard.name='Wireguard'
+uci set firewall.Wireguard.input='REJECT'
+uci set firewall.Wireguard.output='ACCEPT'
+uci set firewall.Wireguard.forward='REJECT'
+uci set firewall.Wireguard.masq='1'
+uci set firewall.Wireguard.mtu_fix='1'
+uci add_list firewall.Wireguard.network='Wireguard'
+
+uci set firewall.wg_fwd=forwarding
+uci set firewall.wg_fwd.src='lan'
+uci set firewall.wg_fwd.dest='Wireguard'
+
+# ৪. সেভ এবং রিস্টার্ট
+uci commit network
+uci commit firewall
+
+/etc/init.d/network restart
+/etc/init.d/firewall restart
+
+```
 
 #Startup Setup - 1
+
 ```
 cat > /etc/rc.local << "EOF"
 # Put your custom commands here that should be executed once
