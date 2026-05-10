@@ -118,7 +118,7 @@ run_step "Updating package list (opkg update)" \
 
 # Step 2: Install packages
 run_step "Installing required packages" \
-"opkg install iptables iptables-mod-nat-extra redsocks 6in4 ipv6helper irqbalance luci-app-ttyd shellsync openvpn-openssl luci-app-openvpn"
+"opkg install iptables iptables-mod-nat-extra redsocks 6in4 ipv6helper irqbalance luci-app-ttyd shellsync openvpn-openssl luci-app-openvpn luci-proto-wireguard wireguard-tools luci-app-pbr pbr"
 
 # Step 3: Setup configuration safely (prevents false errors on retry)
 run_step "Backing up old configuration and setting up new files" \
