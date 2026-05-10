@@ -442,6 +442,11 @@ uci commit pbr
 /etc/init.d/firewall restart
 /etc/init.d/pbr restart
 
+#Turning Off Redsocks
+
+service bdix stop
+service bdix disable
+
 #Admin Password & Hostname Set
 
 #echo -e "IXWRT\nIXWRT" | passwd root
