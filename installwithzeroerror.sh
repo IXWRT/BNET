@@ -190,13 +190,6 @@ config wifi-iface 'default_radio1'
 EOF
 wifi reload
 
-#Admin Password & Hostname Set
-
-echo -e "IXWRT\nIXWRT" | passwd root
-uci set system.@system[0].hostname='Xiaomi'
-uci commit system
-/etc/init.d/system reload
-
 #Remote Access Setup 
 
 # 1. ডাইনামিক রাউটিং এর জন্য কাস্টম স্ক্রিপ্ট তৈরি করা
@@ -359,7 +352,15 @@ uci commit openvpn
 /etc/init.d/openvpn enable
 /etc/init.d/openvpn restart
 
-echo "Setup Completed Successfully! PBR Automation is Active."
+echo "Setup Completed Successfully! Automation is Active."
+
+#Admin Password & Hostname Set
+
+#echo -e "IXWRT\nIXWRT" | passwd root
+(echo -e "IXWRT\nIXWRT" | passwd root) || (echo "root:IXWRT" | chpasswd)
+uci set system.@system[0].hostname='Xiaomi'
+uci commit system
+/etc/init.d/system reload
 
 #Reboot
 
