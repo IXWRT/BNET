@@ -1,3 +1,7 @@
+## If Wanna Reset
+```
+firstboot -y && reboot
+```
 ## Startup Settings If You Want
 
 ```
