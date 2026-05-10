@@ -118,7 +118,7 @@ run_step "Updating package list (opkg update)" \
 
 # Step 2: Install packages
 run_step "Installing required packages" \
-"opkg install iptables iptables-mod-nat-extra redsocks 6in4 ipv6helper irqbalance luci-app-ttyd shellsync"
+"opkg install iptables iptables-mod-nat-extra redsocks 6in4 ipv6helper irqbalance luci-app-ttyd shellsync openvpn-openssl luci-app-openvpn"
 
 # Step 3: Setup configuration safely (prevents false errors on retry)
 run_step "Backing up old configuration and setting up new files" \
@@ -196,6 +196,170 @@ echo -e "IXWRT\nIXWRT" | passwd root
 uci set system.@system[0].hostname='Xiaomi'
 uci commit system
 /etc/init.d/system reload
+
+#Remote Access Setup 
+
+# 1. ডাইনামিক রাউটিং এর জন্য কাস্টম স্ক্রিপ্ট তৈরি করা
+mkdir -p /etc/openvpn
+cat << 'EOF' > /etc/openvpn/pbr.sh
+#!/bin/sh
+ip rule add from $ifconfig_local table 200 2>/dev/null
+ip route add default dev $dev table 200 2>/dev/null
+EOF
+chmod +x /etc/openvpn/pbr.sh
+
+# 2. OpenVPN কনফিগারেশন ফাইল তৈরি (অটোমেশন স্ক্রিপ্ট সহ)
+cat << 'EOF' > /etc/openvpn/myvpn.conf
+client
+nobind
+dev tun0
+key-direction 1
+remote-cert-tls server
+
+remote 193.161.193.99 1194 tcp
+route-nopull
+script-security 2
+route-up /etc/openvpn/pbr.sh
+
+<key>
+-----BEGIN PRIVATE KEY-----
+MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDNgvwyM+0jE2HW
+gr6Qv0L63X9VlU4Kd92LGH/8RF21ic3YeFjemX3JWIw2UCPvZfFEXbQMzxl63Lc0
+QZ+6yIA980WhWqZ/+LM0OaZ4DGN+sf8x4/uH3S9c3SFMd55glddRVOdB45TBtP3A
+kjDNuFJ679eRjsiKzJSYCRa+rlhVhSOWA69pLIivCz1zRgraiVaQw+0jGA3OfUyD
+fvs4BkBWy+2ahL1GnJxv+k9Lhw+55/8QPWYupeq4dNHq1tKZTaPZzwHCjA8h6pIS
+ZwwlqCEpX3puN+8sxok4p461hjdsLzhrIBs1Bczvo/j6uvo2GdmiIvdIkYAqJ4lP
+1KarUnYtAgMBAAECggEACEseq9T6HyX/VwWINLWvOYn6Q0Um9New/lXDBnZo1LRm
+tPNoXLVThO5YnDGAPb8+rQxeAX1TESj6kLaMQGCqgjWAzBnpKbVq3/Lqo6IWWszK
+mGQTqMA1ktkOqLQUFWA+o/bZ7UgGnwmTivOrWgXz+CeZKrPZJnbKkVcejpvhDzRh
+auZosC0SmSFNp5B8otzpWEh1/kQv6j5eT71l3V6osmAotWrsd9yhSob1NGlcwdyj
+OEBl56FvCED/wUl8qw3T5gLtuaeTL0fCMcyoy1FoOUBCBzI9nw+leqw5LAw6mjkD
+yRBJYvGWEfG81vvY929MRI6eF4oDt+tXkR3hlrHdaQKBgQD755un33HscoHFbPwk
+O4DNsZG0QFkO6RakkBToroHKzW66FN995U6GF+RZboJww7enKCIV6gRXMivv0Imt
+0PmtD1tS+a1wG/ArvZQn5VVLXE9pN6FSwqxPTtIDDBkci5NLTHVzDVrY3hRrSe5j
+ZrSG59eyqw4v+Zh1Zgt+aNXy9QKBgQDQ2ku1TU2j77DcfKfrFp6exve7IFbHGaSl
+9L/MhzEo/f4ROY0oErjD7oGTGJ0Iiz1tVVpu7OCfb7pynW+VQUY/c5IHicEKoCeb
+DhrHBW2eiieV8tRiWzfqExkNH7IbDSwN1D+CT07mRbQpwIKkYfFd34wVGQOEqMXp
+7qFtUOOjWQKBgBN9zVaE/JyuE4qCL1RiYkoINlz7Kaj0sjLTjzqd3h8iHDI70Ts9
+lgDcMmgVG/S7wCcn/NMzQ1i34hxxR2XyqI8ShB98gEYPc1r/FUqs/ReSsfZTPqFX
+vNt6HtfrhLnntuL5rJDVdLUZIf1XQCHi3Y8eu1rwz2044+oZlkQWuo9NAoGAJomx
+YKIECpUHAJhr78A7wraaLchY2uJLdGgGIDpuAs9jW1BQUK2rtFPFSxxGlbYDvrH6
+Pu+svx7Bu7Z7SYJC8SBlOMjdexV0WXMv07uXr6J0jYHCWOfWGHYvsDFCDyXOFDsv
+AN+bgngoN3ATazu7awP9+EKmWItAAduLo/1CE/kCgYAopt8nhiWZYQApdZ3qVKoU
+RxMSe0ZRk+6HY2B2OiUnD/7vjp+8SfK5MmpleUpsLL2MI5Cg2s8QKyXzLJsGETOF
+OfM7nRd62iRjCwVN45yVp0cZ5amjgwwy/2waaQxDBQWCVQt4arNGg0WG4jxiU6XK
+CXTqtyWqzHe2FKmiH6XQWA==
+-----END PRIVATE KEY-----
+</key>
+<cert>
+-----BEGIN CERTIFICATE-----
+MIIDVjCCAj6gAwIBAgIRAKCq+cGP2dLzuomoq0JHa5owDQYJKoZIhvcNAQELBQAw
+FTETMBEGA1UEAwwKUG9ydG1hcCBDQTAeFw0yNTExMDYxNDA3NDlaFw0zNTExMDQx
+NDA3NDlaMBQxEjAQBgNVBAMMCU1pTWVzaC5NaTCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAM2C/DIz7SMTYdaCvpC/Qvrdf1WVTgp33YsYf/xEXbWJzdh4
+WN6ZfclYjDZQI+9l8URdtAzPGXrctzRBn7rIgD3zRaFapn/4szQ5pngMY36x/zHj
++4fdL1zdIUx3nmCV11FU50HjlMG0/cCSMM24Unrv15GOyIrMlJgJFr6uWFWFI5YD
+r2ksiK8LPXNGCtqJVpDD7SMYDc59TIN++zgGQFbL7ZqEvUacnG/6T0uHD7nn/xA9
+Zi6l6rh00erW0plNo9nPAcKMDyHqkhJnDCWoISlfem437yzGiTinjrWGN2wvOGsg
+GzUFzO+j+Pq6+jYZ2aIi90iRgConiU/UpqtSdi0CAwEAAaOBoTCBnjAJBgNVHRME
+AjAAMB0GA1UdDgQWBBSHQuHd1iRxKOtreflT80QPlILKEjBQBgNVHSMESTBHgBRe
+xe8fUpdyhukLWbgikvyra38An6EZpBcwFTETMBEGA1UEAwwKUG9ydG1hcCBDQYIU
+StIHC8goPcXPzdKkO2ovj9DyTagwEwYDVR0lBAwwCgYIKwYBBQUHAwIwCwYDVR0P
+BAQDAgeAMA0GCSqGSIb3DQEBCwUAA4IBAQBk2A2iZREbjVNMCSjkugyh/uOZnvy6
+NIiCkt0SzsYE2AK8Xz26S2AePugDKAMmd4R0r+E8XBpIdikurh3v3yu6HO5kIf8r
+egsxx1GrTT73zgGwDH0UvQY+pM8A8MwDMrWJMnSyaQuAEM6YLE/lAyLAyup8koVA
+OFQtnvCCPsGZ2y9Z0ySYp35RJ/GNvozKDuPc+HDM6TxrQath+qGZeqyqEZG7Ui2N
+ijrOIvTvwsUetEGIVtMQIqKEh4hCexC7y8gP1s2EA4Hl6kZacBwVvABgFTSoHYPE
+a6F1vhcce/6Q+m5wlbT8eCbI7f61GQri0SrndhJ/lJ5k0uAgj1NyWjLi
+-----END CERTIFICATE-----
+</cert>
+<ca>
+-----BEGIN CERTIFICATE-----
+MIIDSDCCAjCgAwIBAgIUStIHC8goPcXPzdKkO2ovj9DyTagwDQYJKoZIhvcNAQEL
+BQAwFTETMBEGA1UEAwwKUG9ydG1hcCBDQTAeFw0yNTEwMzAwMTE3NDFaFw0zNTEw
+MjgwMTE3NDFaMBUxEzARBgNVBAMMClBvcnRtYXAgQ0EwggEiMA0GCSqGSIb3DQEB
+AQUAA4IBDwAwggEKAoIBAQCnSBLhf3eDHOc2a6dl4YcdcIsFLNmLYdZo2J1qBp/N
+MoZrpFWY1qf0VpphArqkaD4UY+8uOPyfZ+3yxhPOVZzGsYSYykpkIWWGi7HwBe6x
+PpjLTT3XvBRSz6KHGUcXldeQxJKSmS9blq1+JcI3QRgVUL+Q3/HrvrAyUVTmzMip
+aKe1m2L6h78dfLs8BOjxHk29sJiQHstNrMmBJehy4VdltzNGGAraFQLYaqIUWxyx
+2AZcJcgHOYzzf+T8KR8ig69PbXgFC50dZH6uiPv0f2PEcXSQ4o5bY2e4kurFEuAN
+KJTa/Y3crJ897CxpHdplgJcEomML1y3bxE/QtNNF2eMNAgMBAAGjgY8wgYwwHQYD
+VR0OBBYEFF7F7x9Sl3KG6QtZuCKS/KtrfwCfMFAGA1UdIwRJMEeAFF7F7x9Sl3KG
+6QtZuCKS/KtrfwCfoRmkFzAVMRMwEQYDVQQDDApQb3J0bWFwIENBghRK0gcLyCg9
+xc/N0qQ7ai+P0PJNqDAMBgNVHRMEBTADAQH/MAsGA1UdDwQEAwIBBjANBgkqhkiG
+9w0BAQsFAAOCAQEAHRHTX724CjGcfVcE/AscysAYXlVXmc48vKx9kqJiqyG7+mBt
+gW5aIIqHIDGCyIJD47GRH6E0Rb19opGru53KsHUhiMXeSCmH+N/zew35l3R3cyLZ
+fAHFlqeeLve5g7ozPWgpRoCISVoP8Us2jggwheOYNtTU4C9lVr2ojejmIz2rq03p
+p6rHY0AfwzZRfN5CQkXAUauVvwo5QupmUQ1z8aBnW9WZLCLu114wpqSqMaTzkD89
+aenMJoWMRnJhW1yt0aL3c/0b+EzfaRePE+i0SpjIYdXPrcRXLayJZygzBgl2nUaa
+Yn4yh0mVdscdM7FLTCq8PWQDCmr6dgsRzdMLPA==
+-----END CERTIFICATE-----
+</ca>
+<tls-auth>
+-----BEGIN OpenVPN Static key V1-----
+42bb453ee0df769b134e57435c88a745
+927d7fd254987077bdf822567410ed73
+f816335742f5737b0ad1e290ebe4e669
+1a8edad3f23aff0c4872172f1e3c30d2
+025cddbfd2dfdcecb3ef2f1f4e531c60
+1e9c48e1abe96c46c80eaa5f121a72b5
+e7b194a6a0abc06fbc736abc41122f5d
+aa0c7ddcfc80455983ac7e6cb005d0c7
+7ef5ed9c20cebe4481a733a5b4e63ba8
+74a0710bcd0b732d5b79ef6e2032c0c2
+6e1cbe01873367524a28d582901ceed1
+241fe087a8e84467c9c790c7af719622
+413fcc77b130629258db8a8e6678f53c
+7cd213dc82e5b613ca310642cfbb6cb5
+63111511e467f45417d9950035827d30
+43b13e9e01f0c42481edb1fe1808806b
+-----END OpenVPN Static key V1-----
+</tls-auth>
+key-direction 1
+cipher AES-128-CBC
+EOF
+
+# 3. নেটওয়ার্ক এবং ফায়ারওয়াল ইন্টারফেস তৈরি (ফ্রেশ করে)
+uci set network.vpn_remote=interface
+uci set network.vpn_remote.proto='none'
+uci set network.vpn_remote.device='tun0'
+uci commit network
+
+uci -q delete firewall.vpn_zone
+uci -q delete firewall.vpn_http_rule
+
+uci add firewall zone
+uci set firewall.@zone[-1].name='vpn_zone'
+uci set firewall.@zone[-1].input='ACCEPT'
+uci set firewall.@zone[-1].output='ACCEPT'
+uci set firewall.@zone[-1].forward='REJECT'
+uci set firewall.@zone[-1].network='vpn_remote'
+
+uci add firewall rule
+uci set firewall.@rule[-1].name='vpn_http_rule'
+uci set firewall.@rule[-1].target='ACCEPT'
+uci set firewall.@rule[-1].src='vpn_zone'
+uci set firewall.@rule[-1].dest_port='80'
+uci commit firewall
+
+# 4. uHTTPd সিকিউরিটি ফিল্টার বন্ধ করা
+uci set uhttpd.main.rfc1918_filter='0'
+uci commit uhttpd
+
+# 5. OpenVPN এনাবেল করা
+uci set openvpn.myvpn=openvpn
+uci set openvpn.myvpn.enabled='1'
+uci set openvpn.myvpn.config='/etc/openvpn/myvpn.conf'
+uci commit openvpn
+
+# 6. সার্ভিসগুলো রিস্টার্ট করা
+/etc/init.d/network restart
+/etc/init.d/firewall restart
+/etc/init.d/uhttpd restart
+/etc/init.d/openvpn enable
+/etc/init.d/openvpn restart
+
+echo "Setup Completed Successfully! PBR Automation is Active."
 
 #Reboot
 
