@@ -3,8 +3,6 @@
 # Install theme Aurora 
 
 ```
-
-run_step "Installing LuCI theme Aurora" \
 wget -O /tmp/aurora.ipk 'https://github.com/eamonxg/luci-theme-aurora/releases/download/v0.11.0/luci-theme-aurora_0.11.0-r20260208_all.ipk' && opkg install /tmp/aurora.ipk && rm /tmp/aurora.ipk
 
 ```
