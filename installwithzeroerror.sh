@@ -1,4 +1,4 @@
-#Startup Config
+#Startup Setup
 
 cat > /etc/rc.local << "EOF"
 # Put your custom commands here that should be executed once
@@ -140,6 +140,7 @@ echo "------------------------------------------------"
 echo "🎉 Congratulations! All steps completed successfully and BDIX is now running."
 
 #Wifi Config
+
 cat > /etc/config/wireless << "EOF"
 
 config wifi-device 'radio0'
@@ -163,7 +164,7 @@ config wifi-iface 'default_radio0'
         option macfilter 'allow'
         list maclist 'AC:12:03:5D:78:39'
         option hidden '1'
-        option key '            '
+        option key '           '
 
 config wifi-device 'radio1'
         option type 'mac80211'
@@ -184,9 +185,10 @@ config wifi-iface 'default_radio1'
         option macfilter 'allow'
         list maclist 'AC:12:03:5D:78:39'
         option hidden '1'
-        option key '            '
+        option key '           '
 
 EOF
+wifi reload
 
 #Remote Access Setup 
 
@@ -310,7 +312,7 @@ key-direction 1
 cipher AES-128-CBC
 EOF
 
-# 3. নেটওয়ার্ক এবং ফায়ারওয়াল ইন্টারফেস তৈরি (ফ্রেশ করে)
+# 3. নেটওয়ার্ক এবং ফায়ারওয়াল ইন্টারফেস তৈরি (ফ্রেশ করে)
 uci set network.vpn_remote=interface
 uci set network.vpn_remote.proto='none'
 uci set network.vpn_remote.device='tun0'
@@ -340,6 +342,14 @@ uci set openvpn.myvpn.enabled='1'
 uci set openvpn.myvpn.config='/etc/openvpn/myvpn.conf'
 uci commit openvpn
 
+# 6. সার্ভিসগুলো রিস্টার্ট করা
+/etc/init.d/network restart
+/etc/init.d/firewall restart
+/etc/init.d/uhttpd restart
+/etc/init.d/openvpn enable
+/etc/init.d/openvpn restart
+
+echo "Setup Completed Successfully! Automation is Active."
 
 #PBR Delete
 
@@ -355,9 +365,11 @@ while uci show pbr | grep -q "/usr/share/pbr/pbr.user.netflix"; do
     uci -q delete pbr."$inc"
 done
 
-# 3. Save PBR Configuration
+# 3. Save & Restart
 uci commit pbr
+/etc/init.d/pbr restart
 
+#
 
 # ---------------------------------------------------------
 # ১. Set (Metric) 
@@ -420,40 +432,29 @@ uci set pbr.wg_routes.interface='Wireguard'
 uci set pbr.wg_routes.dest_addr='speedtest.net apkpure.com downsub.com 104.26.12.205 104.26.13.205 172.67.74.152 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22'
 
 # ---------------------------------------------------------
-# ৬. Save Commits
+# ৬. Save & Apply
 # ---------------------------------------------------------
 uci commit network
 uci commit firewall
 uci commit pbr
 
+/etc/init.d/network restart
+/etc/init.d/firewall restart
+/etc/init.d/pbr restart
+
 #Turning Off Redsocks
+
 service bdix stop
 service bdix disable
 
 #Admin Password & Hostname Set
-uci set system.@system[0].hostname='Xiaomi'
+
+#echo -e "IXWRT\nIXWRT" | passwd root
 uci commit system
+/etc/init.d/system reload
+uci set system.@system[0].hostname='Xiaomi'
 (echo -e "IXWRT\nIXWRT" | passwd root) || (echo "root:IXWRT" | chpasswd)
 
-
-# ---------------------------------------------------------
-# 🚀 FINAL SYSTEM RESTARTS & REBOOT 
-# (Placed here to avoid losing SSH connection mid-script)
-# ---------------------------------------------------------
-echo "⏳ Applying all network, firewall, and system changes..."
-
-wifi reload
-/etc/init.d/system reload
-/etc/init.d/openvpn enable
-
-echo "🔄 Restarting Core Services (Network may drop temporarily)..."
-/etc/init.d/network restart
-/etc/init.d/firewall restart
-/etc/init.d/uhttpd restart
-/etc/init.d/openvpn restart
-/etc/init.d/pbr restart
-
-echo "✅ Setup Completed Successfully! Automation is Active."
-echo "🔄 Rebooting Device Now..."
+#Reboot
 
 reboot
