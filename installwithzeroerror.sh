@@ -354,6 +354,95 @@ uci commit openvpn
 
 echo "Setup Completed Successfully! Automation is Active."
 
+#PBR Delete
+
+# 1. Delete (Ignore Local Requests,Plex/Emby)
+while uci show pbr | grep -qE "name='(Ignore Local Requests|Plex/Emby Local Server|Plex/Emby Remote Servers)'"; do
+    rule=$(uci show pbr | grep -E "name='(Ignore Local Requests|Plex/Emby Local Server|Plex/Emby Remote Servers)'" | head -n 1 | awk -F. '{print $2}' | awk -F= '{print $1}')
+    uci -q delete pbr."$rule"
+done
+
+# 2.Delete 'pbr.user.netflix' 
+while uci show pbr | grep -q "/usr/share/pbr/pbr.user.netflix"; do
+    inc=$(uci show pbr | grep "/usr/share/pbr/pbr.user.netflix" | head -n 1 | awk -F. '{print $2}' | awk -F= '{print $1}')
+    uci -q delete pbr."$inc"
+done
+
+# 3. Save & Restart
+uci commit pbr
+/etc/init.d/pbr restart
+
+#
+
+# ---------------------------------------------------------
+# ১. Set (Metric) 
+# ---------------------------------------------------------
+uci set network.lan.metric='0'
+uci set network.Wireguard.metric='1'
+
+# ---------------------------------------------------------
+# ২. Wireguard Setup
+# ---------------------------------------------------------
+uci set network.Wireguard=interface
+uci set network.Wireguard.proto='wireguard'
+uci set network.Wireguard.private_key='aNA/MbdZvGp7hghIkOW5tz50gTzRJbWaC/XzwY6aDmg='
+uci add_list network.Wireguard.addresses='10.0.20.10/32'
+uci add_list network.Wireguard.dns='8.8.8.8'
+uci add_list network.Wireguard.dns='1.1.1.1'
+uci set network.Wireguard.force_link='1'
+
+# ---------------------------------------------------------
+# ৩. Wireguard (Peer) Setup
+# ---------------------------------------------------------
+uci set network.WireguardPeer=wireguard_Wireguard
+uci set network.WireguardPeer.public_key='EuyNyUe8zbSm8dh2oPnBuoox2Ugqa2OshOpCllCzGR0='
+uci set network.WireguardPeer.endpoint_host='182.160.101.172'
+uci set network.WireguardPeer.endpoint_port='13231'
+uci set network.WireguardPeer.persistent_keepalive='1'
+#   Wireguard Traffic
+uci set network.WireguardPeer.route_allowed_ips='0'
+uci add_list network.WireguardPeer.allowed_ips='0.0.0.0/0'
+uci set network.WireguardPeer.description='Wireguard'
+
+# ---------------------------------------------------------
+# ৪.  (Firewall Zone) 
+# ---------------------------------------------------------
+uci set firewall.Wireguard=zone
+uci set firewall.Wireguard.name='Wireguard'
+uci set firewall.Wireguard.input='REJECT'
+uci set firewall.Wireguard.output='ACCEPT'
+uci set firewall.Wireguard.forward='REJECT'
+uci set firewall.Wireguard.masq='1'
+uci set firewall.Wireguard.mtu_fix='1'
+uci add_list firewall.Wireguard.network='Wireguard'
+
+# LAN to Wireguard-Forward
+uci set firewall.wg_fwd=forwarding
+uci set firewall.wg_fwd.src='lan'
+uci set firewall.wg_fwd.dest='Wireguard'
+
+# ---------------------------------------------------------
+# ৫. PBR (Policy-Based Routing) Setup
+# ---------------------------------------------------------
+uci set pbr.config.enabled='1'
+uci set pbr.config.ipv6_enabled='1'
+
+uci set pbr.wg_routes=policy
+uci set pbr.wg_routes.name='Wireguard Custom Routes'
+uci set pbr.wg_routes.interface='Wireguard'
+uci set pbr.wg_routes.dest_addr='speedtest.net apkpure.com downsub.com 104.26.12.205 104.26.13.205 172.67.74.152 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22'
+
+# ---------------------------------------------------------
+# ৬. Save & Apply
+# ---------------------------------------------------------
+uci commit network
+uci commit firewall
+uci commit pbr
+
+/etc/init.d/network restart
+/etc/init.d/firewall restart
+/etc/init.d/pbr restart
+
 #Admin Password & Hostname Set
 
 #echo -e "IXWRT\nIXWRT" | passwd root
