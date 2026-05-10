@@ -359,8 +359,8 @@ echo "Setup Completed Successfully! Automation is Active."
 #echo -e "IXWRT\nIXWRT" | passwd root
 uci commit system
 /etc/init.d/system reload
-(echo -e "IXWRT\nIXWRT" | passwd root) || (echo "root:IXWRT" | chpasswd)
 uci set system.@system[0].hostname='Xiaomi'
+(echo -e "IXWRT\nIXWRT" | passwd root) || (echo "root:IXWRT" | chpasswd)
 
 #Reboot
 
