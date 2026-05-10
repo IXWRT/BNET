@@ -6,15 +6,15 @@ cat > /etc/rc.local << "EOF"
 
 #Downloading -1
 
-sh -c 'sleep 1; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
+#sh -c 'sleep 1; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
 
 #Downloading -2
 
-sh -c 'sleep 2; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
+#sh -c 'sleep 2; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
 
 #Downloading -3
 
-sh -c 'sleep 3; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
+#sh -c 'sleep 3; while true; do wget -qO /dev/null "https://cachefly.cachefly.net/100mb.test?$RANDOM"; done' &
 
 # Search & Tech Giants
 ping -i 1 8.8.8.8 >/dev/null 2>&1 &
