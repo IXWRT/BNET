@@ -9,6 +9,14 @@ wget -O /tmp/aurora.ipk 'https://github.com/eamonxg/luci-theme-aurora/releases/d
 #Default Wireguard
 
 ```
+# . Set (Metric) 
+# ---------------------------------------------------------
+uci set network.wan.metric='1'
+uci set network.wan6.metric='1'
+uci set network.lan.metric='1'
+uci set network.Wireguard.metric='0'
+
+
 # ১. Wireguard ইন্টারফেস সেটআপ
 uci set network.Wireguard=interface
 uci set network.Wireguard.proto='wireguard'
