@@ -1,6 +1,15 @@
-# Now Mini Segment
+# Settings Via Mini Segment 
 
-#Startup Setup -1
+# Install theme Aurora 
+
+```
+
+run_step "Installing LuCI theme Aurora" \
+"wget -O /tmp/aurora.ipk 'https://github.com/eamonxg/luci-theme-aurora/releases/download/v0.11.0/luci-theme-aurora_0.11.0-r20260208_all.ipk' && opkg install /tmp/aurora.ipk && rm /tmp/aurora.ipk"
+
+```
+
+#Startup Setup - 1
 ```
 cat > /etc/rc.local << "EOF"
 # Put your custom commands here that should be executed once
@@ -70,9 +79,7 @@ chmod +x /etc/rc.local
 # Redsocks Setup & Theme Install -2
 
 ```
-
 #!/bin/sh
-
 # Function: Strictly control each step
 run_step() {
     local step_name="$1"
@@ -140,10 +147,6 @@ run_step "Enabling BDIX auto boot-start" \
 run_step "Starting BDIX service" \
 "service bdix start"
 
-# Step 6: Install theme
-run_step "Installing LuCI theme Aurora" \
-"wget -O /tmp/aurora.ipk 'https://github.com/eamonxg/luci-theme-aurora/releases/download/v0.11.0/luci-theme-aurora_0.11.0-r20260208_all.ipk' && opkg install /tmp/aurora.ipk && rm /tmp/aurora.ipk"
-
 echo "------------------------------------------------"
 echo "🎉 Congratulations! All steps completed successfully and BDIX is now running."
 
@@ -152,7 +155,6 @@ echo "🎉 Congratulations! All steps completed successfully and BDIX is now run
 #Wifi Config - 3
 
 ```
-
 cat > /etc/config/wireless << "EOF"
 
 config wifi-device 'radio0'
@@ -204,14 +206,9 @@ wifi reload
 
 ```
 
-
-
-
-
 #Remote Access Setup - 4
 
 ```
-
 # 1. ডাইনামিক রাউটিং এর জন্য কাস্টম স্ক্রিপ্ট তৈরি করা
 mkdir -p /etc/openvpn
 cat << 'EOF' > /etc/openvpn/pbr.sh
@@ -372,13 +369,9 @@ uci commit openvpn
 echo "Setup Completed Successfully! Automation is Active."
 
 ```
-
-
-
 #PBR Delete - 5
 
 ```
-
 # 1. Delete (Ignore Local Requests,Plex/Emby)
 while uci show pbr | grep -qE "name='(Ignore Local Requests|Plex/Emby Local Server|Plex/Emby Remote Servers)'"; do
     rule=$(uci show pbr | grep -E "name='(Ignore Local Requests|Plex/Emby Local Server|Plex/Emby Remote Servers)'" | head -n 1 | awk -F. '{print $2}' | awk -F= '{print $1}')
@@ -474,8 +467,6 @@ service bdix stop
 service bdix disable
 
 ```
-
-
 #Admin Password & Hostname Set - 6
 ```
 uci set system.@system[0].hostname='Xiaomi'
@@ -489,7 +480,6 @@ uci commit system
 ```
 firstboot -y && reboot
 ```
-
 ## 🚀 Installation
 
 ```
@@ -504,13 +494,11 @@ cd /tmp && wget https://github.com/IXWRT/BNET/raw/main/installwithzeroerror.sh &
 ```
 ---
 
-
 ## 🔧 Updating Proxy IP, Port, Username & Password
 
 ```
 vi /etc/bdix.conf
 ```
-
 After making changes:
 - Press `Esc`, then type `:wq` to **save & exit**.
 - Type `:q!` to **exit without saving**.
@@ -519,7 +507,6 @@ After making changes:
 <p align="center">
   <img src="https://i.imgur.com/8uLp8I9.png" alt="Update proxy IP, Port, Username & Password" width="500"/>
 </p>
-
 ---
 
 ## 🏛 Managing BDIX Proxy Service
@@ -548,8 +535,6 @@ service bdix enable
 ```
 service bdix disable
 ```
-
----
 
 ## 🔄 Updating Direct Connection List
 
