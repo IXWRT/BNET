@@ -318,9 +318,6 @@ uci set network.vpn_remote.proto='none'
 uci set network.vpn_remote.device='tun0'
 uci commit network
 
-uci -q delete firewall.vpn_zone
-uci -q delete firewall.vpn_http_rule
-
 uci add firewall zone
 uci set firewall.@zone[-1].name='vpn_zone'
 uci set firewall.@zone[-1].input='ACCEPT'
@@ -377,6 +374,8 @@ uci commit pbr
 # ---------------------------------------------------------
 # ১. Set (Metric) 
 # ---------------------------------------------------------
+uci set network.wan.metric='0'
+uci set network.wan6.metric='0'
 uci set network.lan.metric='0'
 uci set network.Wireguard.metric='1'
 
