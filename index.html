@@ -1,16 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Redirecting...</title>
-    <!-- Instant Redirect -->
-    <meta http-equiv="refresh" content="0; url=http://mimesh-43142.portmap.host:43142/">
-    <script>
-        // JavaScript Instant Redirect
-        window.location.replace("http://mimesh-43142.portmap.host:43142/");
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zero-Latency Dashboard</title>
+    <style>
+        /* ডিফল্ট মার্জিন-প্যাডিং জিরো করে দেওয়া হলো যেন কোনো সাদা বর্ডার না থাকে */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* মেইন পেইজের স্ক্রলবার অফ করা হলো */
+            background-color: #000; /* লোড হওয়ার সময় ব্যাকগ্রাউন্ড কালো থাকবে */
+        }
+
+        /* আইফ্রেমকে ফুলস্ক্রিন করার কোড */
+        .seamless-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none; /* কোনো বর্ডার থাকবে না */
+            margin: 0;
+            padding: 0;
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <!-- Ekdom faka thakbe, kono kichu show korbe na -->
+
+    <iframe 
+        class="seamless-iframe" 
+        src="http://mimesh-43142.portmap.host:43142/" 
+        title="Dashboard Interface"
+        allowfullscreen>
+    </iframe>
+
 </body>
 </html>
